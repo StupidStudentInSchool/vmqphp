@@ -191,12 +191,13 @@ abstract class Enum implements \JsonSerializable
     }
 
     /**
-     * Specify data which should be serialized to JSON. This method returns data that can be serialized by json_encode()
+     * Specify data which should be serialized to JSON. This method returns data that can be serialized by json_encode()/**
      * natively.
      *
      * @return mixed
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->getValue();

@@ -129,7 +129,7 @@
 </style>
 
 <script>
-    $.post("admin/index/getMain",function (data) {
+    $.post("adminGetMain",function (data) {
         $("#todayOrder").html(data.data.todayOrder);
         $("#todaySuccessOrder").html(data.data.todaySuccessOrder);
         $("#countOrder").html(data.data.countOrder);

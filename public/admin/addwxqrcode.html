@@ -142,7 +142,7 @@
             });
             return;
         }
-        $.post("admin/index/addPayQrcode","type=1&pay_url="+encodeURIComponent(obj[index].url)+"&price="+obj[index].money,function (data) {
+        $.post("adminAddPayQrcode","type=1&pay_url="+encodeURIComponent(obj[index].url)+"&price="+obj[index].money,function (data) {
             up(obj,index+1)
         });
     }

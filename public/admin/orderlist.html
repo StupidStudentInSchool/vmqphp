@@ -71,7 +71,7 @@
         myTable = table.render({
             elem: '#demo'
             ,height: 'full-160'
-            ,url: 'admin/index/getOrders'
+            ,url: 'adminGetOrders'
             ,toolbar: '#toolbarDemo'
             ,where: {
                 state:$("#state").val(),
@@ -133,7 +133,7 @@
                         ,shade: 0.01
                     });
 
-                    $.post("admin/index/setBd","id="+data.id,function (data) {
+                    $.post("adminSetBd","id="+data.id,function (data) {
                         if (data.code==1){
                             layer.msg("操作成功！");
                             myTable.reload({
@@ -167,7 +167,7 @@
                         ,shade: 0.01
                     });
 
-                    $.post("admin/index/delOrder","id="+data.id,function (data) {
+                    $.post("adminDelOrder","id="+data.id,function (data) {
                         if (data.code==1){
                             layer.msg("操作成功！");
                             myTable.reload({
@@ -220,7 +220,7 @@
                             ,shade: 0.01
                         });
 
-                        $.post("admin/index/delGqOrder",function (data) {
+                        $.post("adminDelGqOrder",function (data) {
                             if (data.code==1){
                                 layer.msg("操作成功！");
                                 myTable.reload({
@@ -245,7 +245,7 @@
                             ,shade: 0.01
                         });
 
-                        $.post("admin/index/delLastOrder",function (data) {
+                        $.post("adminDelLastOrder",function (data) {
                             if (data.code==1){
                                 layer.msg("操作成功！");
                                 myTable.reload({

@@ -29,6 +29,19 @@ Route::any('appPush','index/index/appPush');
 
 Route::any('closeEndOrder','index/index/closeEndOrder');
 
+Route::any('adminCheckUpdate','admin/Index/checkUpdate');
+Route::any('adminGetMain','admin/Index/getMain');
+Route::any('adminGetSettings','admin/Index/getSettings');
+Route::any('adminSaveSetting','admin/Index/saveSetting');
+Route::any('adminAddPayQrcode','admin/Index/addPayQrcode');
+Route::any('adminGetPayQrcodes','admin/Index/getPayQrcodes');
+Route::any('adminDelPayQrcode','admin/Index/delPayQrcode');
+Route::any('adminGetOrders','admin/Index/getOrders');
+Route::any('adminDelOrder','admin/Index/delOrder');
+Route::any('adminSetBd','admin/Index/setBd');
+Route::any('adminDelGqOrder','admin/Index/delGqOrder');
+Route::any('adminDelLastOrder','admin/Index/delLastOrder');
+
 
 return [
 

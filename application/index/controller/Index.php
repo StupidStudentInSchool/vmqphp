@@ -8,23 +8,20 @@ class Index
 {
     public function index()
     {
-
+        $htmlFile = $_SERVER['DOCUMENT_ROOT'] . '/index.html';
+        if (file_exists($htmlFile)) {
+            return file_get_contents($htmlFile);
+        }
         return '<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>存在搭建问题</title>
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
+    <title>V免签</title>
 </head>
-<body class="body">
-<div style="padding: 15px;color: red;">
-    <h1 style="text-align: center">检测到默认文档未设定成index.html</h1><br><br>
-    <h1 style="text-align: center">请在宝塔面板-网站-设置-默认文档->将index.html放到第一行并保存！</h1><br><br>
+<body>
+<div style="padding: 15px;">
+    <h1 style="text-align: center">V免签系统</h1>
+    <p style="text-align: center">系统已成功部署</p>
 </div>
 </body>
 </html>

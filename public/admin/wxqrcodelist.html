@@ -34,7 +34,7 @@
         myTable = table.render({
             elem: '#demo'
             ,height: 'full-130'
-            ,url: 'admin/index/getPayQrcodes'
+            ,url: 'adminGetPayQrcodes'
             ,where: {
                 type:1,
             }
@@ -59,7 +59,7 @@
 
                     layer.close(index);
                     //向服务端发送删除指令
-                    $.post("admin/index/delPayQrcode","id="+data.id,function (data) {
+                    $.post("adminDelPayQrcode","id="+data.id,function (data) {
                         if (data.code==1){
                             obj.del(); //删除对应行（tr）的DOM结构
                         }

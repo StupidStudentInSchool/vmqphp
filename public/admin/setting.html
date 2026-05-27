@@ -296,9 +296,9 @@
         }
         wximg = wximg.replace(/enQrcode\?url=/g,"");
         zfbimg = zfbimg.replace(/enQrcode\?url=/g,"");
-        $.post("admin/index/saveSetting","user="+user+"&pass="+pass+"&notifyUrl="+notifyUrl+"&returnUrl="+returnUrl+"&key="+key+"&wxpay="+wximg+"&zfbpay="+zfbimg+"&close="+close+"&payQf="+payQf,function (data) {
+        $.post("adminSaveSetting","user="+user+"&pass="+pass+"&notifyUrl="+notifyUrl+"&returnUrl="+returnUrl+"&key="+key+"&wxpay="+wximg+"&zfbpay="+zfbimg+"&close="+close+"&payQf="+payQf,function (data) {
             if (data.code==1){
-                $.post("admin/index/getSettings",function (data) {
+                $.post("adminGetSettings",function (data) {
                     console.log(data);
                     if (data.code==1){
                         $("#user").val(data.data.user);
@@ -323,7 +323,7 @@
 
 
     function getstate(){
-        $.post("admin/index/getSettings",function (data) {
+        $.post("adminGetSettings",function (data) {
             console.log(data);
             if (data.code==1){
                 $("#user").val(data.data.user);

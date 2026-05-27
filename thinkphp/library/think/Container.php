@@ -464,7 +464,20 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         foreach ($params as $param) {
             $name      = $param->getName();
             $lowerName = Loader::parseName($name);
-            $class     = $param->getClass();
+            $class     = null;
+            
+            if (method_exists($param, 'getType')) {
+                $typeHint = $param->getType();
+                if ($typeHint instanceof \ReflectionNamedType && !$typeHint->isBuiltin()) {
+                    try {
+                        $class = new \ReflectionClass($typeHint->getName());
+                    } catch (\ReflectionException $e) {
+                        $class = null;
+                    }
+                }
+            } elseif (method_exists($param, 'getClass')) {
+                $class = @$param->getClass();
+            }
 
             if ($class) {
                 $args[] = $this->getObjectParam($class->getName(), $vars);
@@ -526,33 +539,54 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         $this->delete($name);
     }
 
+    /**
+     * @param mixed $key
+     * @return bool
+     */
+    #[\ReturnTypeWillChange]
     public function offsetExists($key)
     {
         return $this->__isset($key);
     }
 
+    /**
+     * @param mixed $key
+     * @return mixed
+     */
+    #[\ReturnTypeWillChange]
     public function offsetGet($key)
     {
         return $this->__get($key);
     }
 
+    /**
+     * @param mixed $key
+     * @param mixed $value
+     */
+    #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)
     {
         $this->__set($key, $value);
     }
 
+    /**
+     * @param mixed $key
+     */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($key)
     {
         $this->__unset($key);
     }
 
     //Countable
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->instances);
     }
 
     //IteratorAggregate
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->instances);

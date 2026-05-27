@@ -108,6 +108,11 @@ class Index
             return json($this->getReturn(-1,"没有登录"));
         }
         $ver = $this->getCurl("https://raw.githubusercontent.com/szvone/vmqphp/master/ver");
+        
+        if ($ver === false || empty($ver)) {
+            return json($this->getReturn(0,"检查更新失败，网络超时"));
+        }
+        
         $ver = explode("|",$ver);
 
         if (sizeof($ver)==2 && $ver[0]!=config("ver")){
@@ -333,7 +338,7 @@ class Index
 
     public function enQrcode($url){
 
-        $qr_code = new QrcodeServer(['generate'=>"display","size",200]);
+        $qr_code = new QrcodeServer(['generate'=>"display",'size'=>200]);
         $content = $qr_code->createServer($url);
 
         return response($content,200,['Content-Length'=>strlen($content)])->contentType('image/png');
@@ -375,8 +380,10 @@ class Index
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $klsf[] = 'Accept:*/*';
         $klsf[] = 'Accept-Language:zh-cn';
         //$klsf[] = 'Content-Type:application/json';
@@ -396,10 +403,14 @@ class Index
         if ($nobaody) {
             curl_setopt($ch, CURLOPT_NOBODY, 1);
         }
-        curl_setopt($ch, CURLOPT_TIMEOUT,60);
         curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $ret = curl_exec($ch);
+        
+        if (curl_errno($ch)) {
+            $ret = false;
+        }
+        
         curl_close($ch);
         return $ret;
     }

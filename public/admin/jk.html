@@ -73,7 +73,7 @@
     });
 
 
-    $.post("admin/index/getSettings",function (data) {
+    $.post("adminGetSettings",function (data) {
         console.log(data);
         if (data.code==1){
             if (data.data.jkstate == -1){
