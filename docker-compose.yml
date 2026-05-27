@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  vmqphp:
+    build: .
+    container_name: vmqphp
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=vmq
+      - DB_USERNAME=root
+      - DB_PASSWORD=vmq123456
+    depends_on:
+      - mysql
+    volumes:
+      - ./public:/var/www/html/public
+      - ./application:/var/www/html/application
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: vmq-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=vmq123456
+      - MYSQL_DATABASE=vmq
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./vmq.sql:/docker-entrypoint-initdb.d/vmq.sql
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

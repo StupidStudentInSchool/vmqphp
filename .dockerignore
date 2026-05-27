@@ -1,0 +1,11 @@
+.git
+vendor
+node_modules
+.env
+.DS_Store
+*.log
+*.md
+tests
+.gitignore
+.dockerignore
+docker-compose.yml

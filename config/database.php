@@ -12,16 +12,16 @@
 return [
     // 数据库类型
     'type'            => 'mysql',
-    // 服务器地址
-    'hostname'        => '127.0.0.1',
-    // 数据库名
-    'database'        => 'vmq',
-    // 用户名
-    'username'        => 'root',
-    // 密码
-    'password'        => 'root',
-    // 端口
-    'hostport'        => '3306',
+    // 服务器地址（支持环境变量）
+    'hostname'        => getenv('DB_HOST') ?: '127.0.0.1',
+    // 数据库名（支持环境变量）
+    'database'        => getenv('DB_DATABASE') ?: 'vmq',
+    // 用户名（支持环境变量）
+    'username'        => getenv('DB_USERNAME') ?: 'root',
+    // 密码（支持环境变量）
+    'password'        => getenv('DB_PASSWORD') ?: 'root',
+    // 端口（支持环境变量）
+    'hostport'        => getenv('DB_PORT') ?: '3306',
     // 连接dsn
     'dsn'             => '',
     // 数据库连接参数

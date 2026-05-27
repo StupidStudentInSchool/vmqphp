@@ -461,23 +461,29 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         $type   = key($vars) === 0 ? 1 : 0;
         $params = $reflect->getParameters();
 
+        if (PHP_VERSION > 8.0) {
+            $args = $this->parseParamsForPHP8($params, $vars, $type);
+        } else {
+            $args = $this->parseParams($params, $vars, $type);
+        }
+
+        return $args;
+    }
+
+    /**
+     * 解析参数
+     * @access protected
+     * @param  array $params 参数列表
+     * @param  array $vars 参数数据
+     * @param  int   $type 参数类别
+     * @return array
+     */
+    protected function parseParams($params, $vars, $type)
+    {
         foreach ($params as $param) {
             $name      = $param->getName();
             $lowerName = Loader::parseName($name);
-            $class     = null;
-            
-            if (method_exists($param, 'getType')) {
-                $typeHint = $param->getType();
-                if ($typeHint instanceof \ReflectionNamedType && !$typeHint->isBuiltin()) {
-                    try {
-                        $class = new \ReflectionClass($typeHint->getName());
-                    } catch (\ReflectionException $e) {
-                        $class = null;
-                    }
-                }
-            } elseif (method_exists($param, 'getClass')) {
-                $class = @$param->getClass();
-            }
+            $class     = $param->getClass();
 
             if ($class) {
                 $args[] = $this->getObjectParam($class->getName(), $vars);
@@ -493,7 +499,38 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
                 throw new InvalidArgumentException('method param miss:' . $name);
             }
         }
+        return $args;
+    }
 
+    /**
+     * 解析参数
+     * @access protected
+     * @param  array $params 参数列表
+     * @param  array $vars 参数数据
+     * @param  int   $type 参数类别
+     * @return array
+     */
+    protected function parseParamsForPHP8($params, $vars, $type)
+    {
+        foreach ($params as $param) {
+            $name           = $param->getName();
+            $lowerName      = Loader::parseName($name);
+            $reflectionType = $param->getType();
+
+            if ($reflectionType && $reflectionType->isBuiltin() === false) {
+                $args[] = $this->getObjectParam($reflectionType->getName(), $vars);
+            } elseif (1 == $type && !empty($vars)) {
+                $args[] = array_shift($vars);
+            } elseif (0 == $type && array_key_exists($name, $vars)) {
+                $args[] = $vars[$name];
+            } elseif (0 == $type && array_key_exists($lowerName, $vars)) {
+                $args[] = $vars[$lowerName];
+            } elseif ($param->isDefaultValueAvailable()) {
+                $args[] = $param->getDefaultValue();
+            } else {
+                throw new InvalidArgumentException('method param miss:' . $name);
+            }
+        }
         return $args;
     }
 
@@ -539,39 +576,24 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         $this->delete($name);
     }
 
-    /**
-     * @param mixed $key
-     * @return bool
-     */
     #[\ReturnTypeWillChange]
     public function offsetExists($key)
     {
         return $this->__isset($key);
     }
 
-    /**
-     * @param mixed $key
-     * @return mixed
-     */
     #[\ReturnTypeWillChange]
     public function offsetGet($key)
     {
         return $this->__get($key);
     }
 
-    /**
-     * @param mixed $key
-     * @param mixed $value
-     */
     #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)
     {
         $this->__set($key, $value);
     }
 
-    /**
-     * @param mixed $key
-     */
     #[\ReturnTypeWillChange]
     public function offsetUnset($key)
     {

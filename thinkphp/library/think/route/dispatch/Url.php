@@ -60,7 +60,7 @@ class Url extends Dispatch
             $controller = !empty($path) ? array_shift($path) : null;
         }
 
-        if ($controller && !preg_match('/^[A-Za-z][\w|\.]*$/', $controller)) {
+        if ($controller && !preg_match('/^[A-Za-z0-9][\w|\.]*$/', $controller)) {
             throw new HttpException(404, 'controller not exists:' . $controller);
         }
 
@@ -110,12 +110,12 @@ class Url extends Dispatch
         list($module, $controller, $action) = $route;
 
         // 检查地址是否被定义过路由
-        $name = strtolower($module . '/' . Loader::parseName($controller, 1) . '/' . $action);
+        $name = strtolower((string) $module . '/' . Loader::parseName($controller, 1) . '/' . (string) $action);
 
         $name2 = '';
 
         if (empty($module) || $module == $bind) {
-            $name2 = strtolower(Loader::parseName($controller, 1) . '/' . $action);
+            $name2 = strtolower(Loader::parseName($controller, 1) . '/' . (string) $action);
         }
 
         $host = $this->request->host(true);

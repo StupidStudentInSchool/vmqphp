@@ -9,9 +9,13 @@
 namespace app\service;
 
 
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\LabelAlignment;
 use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
+use Endroid\QrCode\Label\Label;
+use Endroid\QrCode\Logo\Logo;
+use Endroid\QrCode\Encoding\Encoding;
 
 class QrcodeServer
 {
@@ -48,35 +52,50 @@ class QrcodeServer
      * @return array | page input
      */
     public function createServer($content) {
-        $this->_qr = new QrCode($content);
-        $this->_qr->setSize($this->_size);
-        $this->_qr->setWriterByName(self::WRITE_NAME);
-        $this->_qr->setMargin(self::MARGIN);
-        $this->_qr->setEncoding($this->_encoding);
-        $this->_qr->setErrorCorrectionLevel('high');   // 容错率
-        $this->_qr->setForegroundColor(self::FOREGROUND_COLOR);
-        $this->_qr->setBackgroundColor(self::BACKGROUND_COLOR);
-        // 是否需要title
-        if ($this->_title) {
-            $this->_qr->setLabel($this->_title_content, 16, null, LabelAlignment::CENTER);
-        }
+        $this->_qr = QrCode::create($content)
+            ->setSize($this->_size)
+            ->setMargin(self::MARGIN)
+            ->setEncoding(new Encoding($this->_encoding))
+            ->setErrorCorrectionLevel(new ErrorCorrectionLevelHigh())
+            ->setForegroundColor(new Color(
+                self::FOREGROUND_COLOR['r'],
+                self::FOREGROUND_COLOR['g'],
+                self::FOREGROUND_COLOR['b'],
+                self::FOREGROUND_COLOR['a']
+            ))
+            ->setBackgroundColor(new Color(
+                self::BACKGROUND_COLOR['r'],
+                self::BACKGROUND_COLOR['g'],
+                self::BACKGROUND_COLOR['b'],
+                self::BACKGROUND_COLOR['a']
+            ));
+
         // 是否需要logo
-        if ($this->_logo) {
-            $this->_qr->setLogoPath($this->_logo_url);
-            $this->_qr->setLogoWidth($this->_logo_size);
+        if ($this->_logo && $this->_logo_url) {
+            $logo = Logo::create($this->_logo_url)
+                ->setResizeToWidth($this->_logo_size);
+            $this->_qr->setLogo($logo);
         }
 
-        $this->_qr->setValidateResult(false);
+        // 是否需要title
+        if ($this->_title && $this->_title_content) {
+            $label = Label::create($this->_title_content)
+                ->setTextColor(new Color(0, 0, 0));
+            $this->_qr->setLabel($label);
+        }
+
+        $writer = new PngWriter();
 
         if ($this->_generate == 'display') {
             // 展示二维码
             // 前端调用 例：<img src="http://localhost/qr.php?url=base64_url_string">
-            header('Content-Type: ' . $this->_qr->getContentType());
-            return $this->_qr->writeString();
+            $result = $writer->write($this->_qr);
+            header('Content-Type: ' . $result->getMimeType());
+            return $result->getString();
         } else if ($this->_generate == 'writefile') {
             // 写入文件
             $file_name = $this->_file_name;
-            return $this->generateImg($file_name);
+            return $this->generateImg($file_name, $writer);
         } else {
             return ['success' => false, 'message' => 'the generate type not found', 'data' => ''];
         }
@@ -87,7 +106,7 @@ class QrcodeServer
      * @param $file_name //目录文件 例: /tmp
      * @return array
      */
-    public function generateImg($file_name) {
+    public function generateImg($file_name, $writer) {
         $file_path = $file_name . DIRECTORY_SEPARATOR . uniqid() . '.' . self::WRITE_NAME;
 
         if (!file_exists($file_name)) {
@@ -95,7 +114,8 @@ class QrcodeServer
         }
 
         try {
-            $this->_qr->writeFile($file_path);
+            $result = $writer->write($this->_qr);
+            $result->saveToFile($file_path);
             $data = [
                 'url' => $file_path,
                 'ext' => self::WRITE_NAME,

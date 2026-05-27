@@ -372,7 +372,7 @@ class Loader
     public static function parseName($name, $type = 0, $ucfirst = true)
     {
         if (empty($name)) {
-            return $name;
+            return '';
         }
         
         if ($type) {
@@ -382,7 +382,7 @@ class Loader
             return $ucfirst ? ucfirst($name) : lcfirst($name);
         }
 
-        return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
+        return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", (string) $name), "_"));
     }
 
     /**
