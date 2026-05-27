@@ -25,18 +25,32 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php -r "unlink('composer-setup.php');" \
     && chmod +x /usr/local/bin/composer
 
-# 复制项目文件
+# 复制项目文件（包括已安装的 vendor）
 COPY . .
 
-# 配置Composer忽略安全警告
-RUN composer config --global audit.block-insecure false
+# PHP 8.3 ThinkPHP 5.1 兼容性修复
+# 修复 Container.php ArrayAccess 方法返回类型
+RUN sed -i 's/#\[\ReturnTypeWillChange\]//' /var/www/html/thinkphp/library/think/Container.php \
+    && sed -i 's/public function offsetExists(\$key)/public function offsetExists(mixed \$key): bool/' /var/www/html/thinkphp/library/think/Container.php \
+    && sed -i 's/public function offsetGet(\$key)/public function offsetGet(mixed \$key): mixed/' /var/www/html/thinkphp/library/think/Container.php \
+    && sed -i 's/public function offsetSet(\$key, \$value)/public function offsetSet(mixed \$key, mixed \$value): void/' /var/www/html/thinkphp/library/think/Container.php \
+    && sed -i 's/public function offsetUnset(\$key)/public function offsetUnset(mixed \$key): void/' /var/www/html/thinkphp/library/think/Container.php
 
-# 安装依赖
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# 修复 Config.php ArrayAccess 方法返回类型
+RUN sed -i 's/public function offsetSet(\$name, \$value)/public function offsetSet(mixed \$name, mixed \$value): void/' /var/www/html/thinkphp/library/think/Config.php \
+    && sed -i 's/public function offsetExists(\$name)/public function offsetExists(mixed \$name): bool/' /var/www/html/thinkphp/library/think/Config.php \
+    && sed -i 's/public function offsetUnset(\$name)/public function offsetUnset(mixed \$name): void/' /var/www/html/thinkphp/library/think/Config.php \
+    && sed -i 's/public function offsetGet(\$name)/public function offsetGet(mixed \$name): mixed/' /var/www/html/thinkphp/library/think/Config.php
+
+# 设置PHP配置，忽略E_DEPRECATED警告
+RUN echo 'error_reporting = E_ALL & ~E_DEPRECATED' >> /usr/local/etc/php/php.ini
 
 # 设置Apache配置
 RUN sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf \
     && a2enmod rewrite
+
+# 复制Apache虚拟主机配置
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # 设置文件权限
 RUN chown -R www-data:www-data /var/www/html \
